@@ -1,0 +1,122 @@
+<% layout('layout/page') -%>
+<% block('title', title) -%>
+
+<div id="room">
+    <p>Hello, <%=user.get('username')%></p>
+    <ul class="list-unstyled"></ul>
+    <form>
+        <input class="form-control" autocomplete="off" autofocus placeholder="Сообщение...">
+    </form>
+</div>
+
+<script src="/vendor/bower_components/socket.io-client/dist/socket.io.js"></script>
+<script>
+  var input = $('#room input');
+  var ul = $('#room ul');
+  var form = $('#room form');
+
+  var socket = io('', {reconnection:true});
+
+  socket
+    .on('message', function (username, message) {
+      printMessage(username + '>' + message);
+    })
+    .on('leave', function (username) {
+      printStatus(username + ' leave chat');
+    })
+    .on('join', function (username) {
+      printStatus(username + ' join to the chat');
+    })
+    .on('connect', function () {
+      printStatus('connection is established');
+      form.on('submit', function (e) {
+        sendMessage();
+        e.preventDefault();
+        return false;
+      });
+      input.prop('disabled', false);
+    })
+    .on('logout', function () {
+      printStatus('connection is established');
+      location.href = "/";
+    })
+    .on('disconnect', function () {
+      printStatus('connection lost');
+      form.off('submit', sendMessage);
+      input.prop('disabled', true);
+      this.$emit('error');
+    })
+    .on('error', function (reason) {
+      if (reason == 'handshake unauthorized'){
+        printStatus('you leave chat');
+      }else{
+        setTimeout(function (args) {
+          socket.socket.connect();
+        }, 500)
+      }
+    });
+
+  function printMessage(text) {
+    $('<li>', {text:text}).appendTo(ul);
+  }
+  function printStatus(status) {
+    $('<li>').append($('<i>').text(status)).appendTo(ul);
+  }
+  function sendMessage() {
+    var text = input.val();
+    socket.emit('message', text, function () {
+      printMessage("I say> " + text);
+    });
+
+    input.val('');
+    return false;
+  }
+</script>
+
+<script>
+  /*var input = $('#room input');
+  var ul = $('#room ul');
+  var form = $('#room form');
+  function printStatus(status) {
+    $('<li class="status">').text(status).appendTo(ul);
+  }
+  function printMessage(username, text) {
+    $('<li>').append(
+      $('<i>').text(username)
+    ).append('> ' + text)
+      .appendTo(ul);
+  }
+  var connection = new Connection({
+    prefix: "/socket",
+    socket: {debug: true},
+    debug: true
+  });
+  connection.on('open', function() {
+    printStatus('соединение установлено');
+  });
+  connection.on('disconnect', function() {
+    printStatus('соединение потеряно');
+  });
+  connection.on('message', function(e, message) {
+    if (message.text) {
+      printMessage(message.username, message.text);
+    } else if (message.status) {
+      printStatus(message.username + ': ' + message.status);
+    } else {
+      throw new Error("Bad message: " + message);
+    }
+  });
+  connection.on('close', function(event) {
+    printStatus('соединение закрыто');
+  });
+  form.submit(function() {
+    try {
+      connection.send({text: input.val()});
+    } catch(e) {
+      console.log(e);
+      return false;
+    }
+    input.val('');
+    return false;
+  });*/
+</script>
