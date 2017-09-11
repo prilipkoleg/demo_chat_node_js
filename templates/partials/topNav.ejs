@@ -8,7 +8,12 @@
   <ul class="nav navbar-nav navbar-right">
     <% if (user) { %>
     <!--<li><a href="" onclick="$('<form method=POST action=/user/logout></form>').submit();return false;">Выйти</a></li>-->
-    <li><a href="" onclick="$.ajax({url: '/user/logout',method: 'POST'});return false;">Выйти</a></li>
+    <!--<li><a href="" onclick="$.ajax({url: '/user/logout',method: 'POST'});return false;">Выйти</a></li>-->
+    <li>
+      <form action="/user/logout" method="POST">
+        <input type="submit" value="logout">
+      </form>
+    </li>
     <% } else { %>
     <li><a href="/user/login">Войти</a></li>
     <% } %>

@@ -61,7 +61,7 @@ schema.statics.authorize = function (username, password, callback) {
     function (user, callback) {
       if (user)
       {
-        if(user.chekPassword(password))
+        if(user.checkPassword(password))
         {
           callback(null, user);
         }else{
